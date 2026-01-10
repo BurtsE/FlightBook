@@ -1,0 +1,45 @@
+spring:
+  application:
+    name:
+      booking-service
+#  datasource:
+#    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/your_db}
+#    username: ${SPRING_DATASOURCE_USERNAME:your_user}
+#    password: ${SPRING_DATASOURCE_PASSWORD:your_pass}
+#    driver-class-name: org.postgresql.Driver
+#  jpa:
+#    hibernate:
+#      ddl-auto: create-drop  # or 'update' / 'create'
+#    show-sql: true
+#    database-platform: org.hibernate.dialect.PostgreSQLDialect
+#  session:
+#    jdbc:
+#      initialize-schema: always
+  datasource:
+    url: jdbc:h2:mem:mydb
+    username: sa
+    password: password
+    driverClassName: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+  session:
+    jdbc:
+      initialize-schema: always
+
+app:
+  user-service:
+    name: ${USER_SERVICE_URL:user-service}
+  hotel-service:
+    base-url: "http://localhost:8082/api/rooms"
+
+server:
+  port: 8082
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+  instance:
+    preferIpAddress: true
+    non-secure-port-enabled: true
+

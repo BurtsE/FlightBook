@@ -1,0 +1,70 @@
+version: '3.8'
+services:
+  booking-service:
+    build:
+      context: ./BookingService
+      dockerfile: ./Dockerfile
+    container_name: booking-service
+    environment:
+      USER_SERVICE_URL: http:/user-service:8081
+      SPRING_DATASOURCE_URL: jdbc:postgresql://booking_postgres:5432/booking_db
+      SPRING_DATASOURCE_USERNAME: booking_dbuser
+      SPRING_DATASOURCE_PASSWORD: booking_pass
+    depends_on:
+      booking_postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    networks:
+      - internal
+  user-service:
+    build:
+      context: ./UserService
+      dockerfile: ./Dockerfile
+    container_name: user-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://user_postgres:5432/user_db
+      SPRING_DATASOURCE_USERNAME: your_user
+      SPRING_DATASOURCE_PASSWORD: your_pass
+    depends_on:
+      user_postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    networks:
+      - internal
+  booking_postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: booking_db
+      POSTGRES_USER: booking_dbuser
+      POSTGRES_PASSWORD: booking_pass
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U booking_dbuser -d booking_db" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    networks:
+      - internal
+  user_postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: your_user
+      POSTGRES_PASSWORD: your_pass
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U your_user -d user_db" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    networks:
+      - internal
+
+
+networks:
+  internal:
+

@@ -1,0 +1,36 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: false
+#      routes:
+#        - id: user-service-route
+#          uri: lb://user-service   # Load-balanced via Eureka
+#          predicates:
+#            - Host=user-service
+#        - id: booking-service-route
+#          uri: lb://booking-service
+#          predicates:
+#            - Host=booking-service
+      httpclient:
+        wiretap: true     # Logs request/response body (for outbound to services)
+        httpserver:
+          wiretap: true     # Logs inbound client requests
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/  # Eureka server URL
+  instance:
+    prefer-ip-address: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.web.reactive: DEBUG
