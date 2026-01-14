@@ -8,19 +8,19 @@ import java.util.Collection;
 import java.util.List;
 
 public class CustomUserPrincipal implements UserDetails {
-    private final Long userId;
+    private final Long id;
     private final String username;
     private final List<GrantedAuthority> authorities;
 
     public CustomUserPrincipal(Long userId, String username, Collection<? extends GrantedAuthority> authorities) {
-        this.userId = userId;
+        this.id = userId;
         this.username = username;
         this.authorities = new ArrayList<>(authorities);
     }
 
     // Expose userId
     public Long getUserId() {
-        return userId;
+        return id;
     }
 
     // UserDetails methods

@@ -3,7 +3,9 @@ package org.example.service;
 import jakarta.persistence.EntityNotFoundException;
 import org.example.dao.Hotel;
 import org.example.dao.Room;
+import org.example.dto.CreateHotelRequest;
 import org.example.dto.CreateRoomRequest;
+import org.example.mapper.HotelMapper;
 import org.example.mapper.RoomMapper;
 import org.example.repository.HotelRepository;
 import org.example.repository.RoomRepository;
@@ -15,19 +17,32 @@ import java.util.List;
 public class HotelManagementService {
     public final HotelRepository hotelRepository;
     public final RoomRepository roomRepository;
+    public final HotelMapper hotelMapper;
+    private final RoomMapper roomMapper;
 
-    public HotelManagementService(HotelRepository hotelRepository, RoomRepository roomRepository) {
+    public HotelManagementService(
+            HotelRepository hotelRepository,
+            RoomRepository roomRepository,
+            HotelMapper hotelMapper,
+            RoomMapper roomMapper)
+    {
         this.hotelRepository = hotelRepository;
         this.roomRepository = roomRepository;
+        this.hotelMapper = hotelMapper;
+        this.roomMapper = roomMapper;
     }
 
-    public Hotel createHotel(Hotel hotel) {
+    public Hotel createHotel(CreateHotelRequest dto) {
+        Hotel hotel = hotelMapper.toEntity(dto);
         return hotelRepository.save(hotel);
+    }
+    public List<Hotel> getAllHotels() {
+        return hotelRepository.findAll();
     }
 
     public Room createRoom(CreateRoomRequest dto) {
         hotelRepository.findById(dto.hotelId).orElseThrow(() -> new EntityNotFoundException("Hotel not found: " + dto.hotelId));
-        Room room = RoomMapper.INSTANCE.toEntity(dto);
+        Room room = roomMapper.toEntity(dto);
         return roomRepository.save(room);
     }
 
@@ -47,6 +62,13 @@ public class HotelManagementService {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Room not found: " + id));
         room.setAvailable(available);
+        roomRepository.save(room);
+    }
+
+    public void incrementRoomTimesBooked(Long roomId) {
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new EntityNotFoundException("Room not found: " + roomId));
+        room.setTimesBooked(room.getTimesBooked() + 1);
         roomRepository.save(room);
     }
 }

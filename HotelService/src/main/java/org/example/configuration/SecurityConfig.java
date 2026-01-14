@@ -26,8 +26,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/hotels", "/hotels/rooms").hasRole("ADMIN")
+                        .requestMatchers("/rooms/{id}/confirm-availability", "/rooms/{id}/release").permitAll()
                         .requestMatchers("/hotels/**", "/hotels/rooms/**").authenticated()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtValidationFilter, BearerTokenAuthenticationFilter.class);
 

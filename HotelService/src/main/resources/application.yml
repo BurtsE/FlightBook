@@ -14,8 +14,12 @@ spring:
     jdbc:
       initialize-schema: always
 
+app:
+  user-service:
+    name: ${USER_SERVICE_URL:user-service}
+
 server:
-  port: 8082
+  port: 8083
 
 eureka:
   client:

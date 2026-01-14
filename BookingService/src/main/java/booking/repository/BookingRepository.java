@@ -18,7 +18,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "FROM Booking b " +
             "WHERE b.roomId = :roomId " +
             "AND b.startDate < :endDate " +
-            "AND :startDate < b.endDate")
+            "AND :startDate < b.endDate " +
+            "AND b.status = 'CONFIRMED'"
+    )
     boolean roomIsBusy(@Param("roomId") Long roomId,
                        @Param("startDate") Date startDate,
                        @Param("endDate") Date endDate);

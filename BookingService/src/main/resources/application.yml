@@ -30,7 +30,7 @@ app:
   user-service:
     name: ${USER_SERVICE_URL:user-service}
   hotel-service:
-    base-url: "http://localhost:8082/api/rooms"
+    name: ${HOTEL_SERVICE_URL:hotel-service}
 
 server:
   port: 8082

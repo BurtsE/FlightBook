@@ -1,7 +1,9 @@
 package org.example.controller;
 
 import org.example.dao.Room;
+import org.example.dto.AvailabilityResponseDTO;
 import org.example.dto.CreateRoomRequest;
+import org.example.dto.RoomIsBookedDTO;
 import org.example.mapper.RoomMapper;
 import org.example.service.HotelManagementService;
 import org.springframework.http.HttpStatus;
@@ -33,9 +35,25 @@ public class RoomController {
         return new ResponseEntity<>(hotelManagementService.getAvailableRooms(), HttpStatus.OK);
     }
 
-    @PostMapping("/api/rooms/{id}/confirm-availability")
-    public ResponseEntity<?> setRoomAvailable(@RequestBody SetRoomAvailableRequest request) {
-        hotelManagementService.setRoomAvailable(request.getId(), request.getAvailable());
+    @PostMapping("/{id}/confirm-availability")
+    public ResponseEntity<?> confirmAvailability(@PathVariable Long id) {
+        boolean available = hotelManagementService.isRoomAvailable(id);
+        if (available) {
+            hotelManagementService.setRoomAvailable(id, false);
+        }
+
+        return new ResponseEntity<>(new AvailabilityResponseDTO(available), HttpStatus.OK);
+    }
+
+    @PostMapping("/{id}/release")
+    public ResponseEntity<?> releaseAvailability(
+            @PathVariable Long id,
+            @RequestBody RoomIsBookedDTO bookedDTO
+    ) {
+        if (bookedDTO != null && bookedDTO.booked()) {
+            hotelManagementService.incrementRoomTimesBooked(id);
+        }
+        hotelManagementService.setRoomAvailable(id, true);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

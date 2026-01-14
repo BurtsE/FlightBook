@@ -46,6 +46,10 @@ public class BookingController {
             @AuthenticationPrincipal CustomUserPrincipal principal
     ) {
 
+        if (requestDTO.endDate.before(requestDTO.startDate)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         Booking booking = bookingService.createBooking(requestDTO, principal.getUserId());
 
         if (booking == null) {

@@ -3,8 +3,11 @@ package booking.service;
 import booking.dao.Booking;
 import booking.dto.CreateBookingRequestDTO;
 import booking.dto.RoomResponseDTO;
+import booking.exceptions.ResourceNotFoundException;
 import booking.mapping.BookingMapper;
 import booking.repository.BookingRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +20,8 @@ public class BookingService {
     private final BookingAsyncService bookingAsyncService;
     private final BookingRepository bookingRepository;
     private final HotelService hotelService;
+    private static final Logger log = LoggerFactory.getLogger(BookingService.class);
+
     public BookingService(BookingRepository bookingRepository, BookingAsyncService bookingAsyncService, HotelService hotelService) {
         this.bookingRepository = bookingRepository;
         this.bookingAsyncService = bookingAsyncService;
@@ -24,7 +29,7 @@ public class BookingService {
     }
 
     public Booking getBookingById(Long id)  {
-        return bookingRepository.findById(id).orElse(null);
+        return bookingRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Booking not found: " + id));
     }
 
     public List<Booking> getBookingsByUserId(Long userId) {
@@ -35,22 +40,22 @@ public class BookingService {
 
         Booking booking = BookingMapper.INSTANCE.toEntity(dto, userId);
 
-
-        System.out.println("Booking creating: " + booking.getRoomId()
-        + " userId: " + userId
-        + " startDate: " + booking.getStartDate()
-        );
+        log.info("Booking creating: {} for user: {} for date: {} to: {}",
+                booking, userId, booking.getStartDate(), booking.getEndDate());
 
         if (dto.autoSelect) {
             List<RoomResponseDTO> rooms = hotelService.getAvailableRooms();
+            if (rooms == null || rooms.isEmpty()) {
+                throw new ResourceNotFoundException("No available rooms", "room_id", booking.getRoomId());
+            }
 
             RoomResponseDTO availableRoom = findAFreeRoom(rooms,
                     booking.getStartDate(), booking.getEndDate());
             if (availableRoom == null) {
-                return null;
+                throw new ResourceNotFoundException("No available rooms", "room_id", booking.getRoomId());
             }
 
-            booking.setRoomId(availableRoom.roomId);
+            booking.setRoomId(availableRoom.id);
         } else if (dto.roomId != null) {
             boolean roomIsBusy = bookingRepository.roomIsBusy(booking.getRoomId(), booking.getStartDate(), booking.getEndDate());
             if (roomIsBusy) {
@@ -77,7 +82,7 @@ public class BookingService {
 
     private RoomResponseDTO findAFreeRoom(List<RoomResponseDTO> rooms, Date startDate, Date endDate) {
         for (RoomResponseDTO room : rooms) {
-            boolean roomIsBusy = bookingRepository.roomIsBusy(room.roomId, startDate, endDate);
+            boolean roomIsBusy = bookingRepository.roomIsBusy(room.id, startDate, endDate);
             if (!roomIsBusy) {
                 return room;
             }

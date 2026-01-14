@@ -24,7 +24,7 @@ public class Booking {
 
     private Date endDate;
 
-    private String Status;
+    private String status;
 
     private Date createdAt;
 }

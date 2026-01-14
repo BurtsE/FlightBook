@@ -1,6 +1,6 @@
 package booking.dto;
 
 public class RoomResponseDTO {
-    public Long roomId;
+    public Long id;
     public Long timesBooked;
 }

@@ -25,6 +25,10 @@ public class GatewayApplication {
                         .path("/api/v1/users/**")
                         .filters(f -> f.stripPrefix(2))
                         .uri("lb://user-service"))
+                .route("hotels_route", r -> r
+                        .path("/api/v1/hotels/", "/api/v1/rooms/")
+                        .filters(f -> f.stripPrefix(2))
+                        .uri("lb://hotel-service"))
                 .build();
     }
 

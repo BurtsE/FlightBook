@@ -9,10 +9,11 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface RoomMapper {
-    RoomMapper INSTANCE = Mappers.getMapper(RoomMapper.class);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(source = "hotelId", target = "hotel")
+    @Mapping(target = "roomNumber", source = "roomNumber")
+    @Mapping(target = "timesBooked", expression="java(new Long(0))")
     Room toEntity(CreateRoomRequest request);
 
     default Hotel mapHotelIdToHotel(Long hotelId) {
